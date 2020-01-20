@@ -111,12 +111,12 @@ export default {
         const id = this.$route.param.id;
         //根据id查询课程
         this.getCourseInfoById(id);
-
       } else {
         this.courseInfo = { ...defaultForm }; //深拷贝
+        // 初始化分类列表
+        this.initSubjectList();
       }
-      // 初始化分类列表
-      this.initSubjectList();
+
       // 获取讲师列表
       this.initTeacherList();
     },
@@ -126,9 +126,8 @@ export default {
       //新增
       if (!this.courseInfo.id) {
         this.save();
-      }
-      //更新
-      else {
+      } else {
+        //更新
         this.update();
       }
 
@@ -196,10 +195,26 @@ export default {
       return isJPG && isLt2M;
     },
     //根据id查询课程
-    getCourseInfoById(id){
-        course.getCourseInfoById(id).then(res=>{
-            this.courseInfo=res.data;
+    getCourseInfoById(id) {
+      //获取数据回显
+      course.getCourseInfoById(id).then(res => {
+        this.courseInfo = res.data;
+
+      // 初始化分类列表
+        subject.getNestedTreeList().then(res => {
+          this.subjectNestedList = res.data;
+          // 填充二级菜单：遍历一级菜单列表，
+          for (let i = 0; i < this.subjectNestedList.length; i++) {
+            // 找到和courseInfo.subjectParentId一致的父类别记录
+            if (
+              this.subjectNestedList[i].id === this.courseInfo.subjectParentId
+            ) {
+              // 拿到当前类别下的子类别列表，将子类别列表填入二级下拉菜单列表
+              this.subSubjectList = this.subjectNestedList[i].children;
+            }
+          }
         });
+      });
     }
   }
 };
