@@ -150,7 +150,9 @@ export default {
         });
     },
     update() {
-      this.$router.push({ path: "/edu/course/chapter/1" });
+      //更新课程
+      this.updateCourseInfoById();
+   
     },
     initSubjectList() {
       //初始化分类列表
@@ -215,7 +217,19 @@ export default {
           }
         });
       });
-    }
+    },
+
+  //更新课程
+  updateCourseInfoById(){
+    this.btnDisabled = true ;//禁用按钮
+      course.updateCourseInfoById(this.courseInfo).then(res=>{
+          this.$message.success('更新成功');
+      }).then(()=>{
+        //使用路由跳转到其他页面
+             this.$router.push({ path: "/edu/course/chapter/"+this.courseInfo.id });
+      })
+
+  }
   }
 };
 </script> 

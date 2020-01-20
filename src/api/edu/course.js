@@ -15,5 +15,13 @@ export default {
       method: "GET",
       url: `${api_name}/${id}`
     });
+  },
+  //更新课程
+  updateCourseInfoById(courseInfo){
+    return request({
+      method: "PUT",
+      url: `${api_name}/updateCourseInfo/${courseInfo.id}`,
+      data: courseInfo
+    });
   }
 };
