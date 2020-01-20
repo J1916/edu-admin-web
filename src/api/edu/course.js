@@ -23,5 +23,12 @@ export default {
       url: `${api_name}/updateCourseInfo/${courseInfo.id}`,
       data: courseInfo
     });
-  }
+  },
+  getPageList(page, rows, searchObj) {
+    return request({
+      method: "GET",
+      url: `${api_name}/${page}/${rows}`,
+      params: searchObj
+    });
+  },
 };
