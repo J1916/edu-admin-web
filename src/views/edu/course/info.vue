@@ -173,7 +173,7 @@ export default {
     handleAvatarSuccess(res, file) {
       console.log(res); // 上传响应
       console.log(URL.createObjectURL(file.raw)); // base64编码
-      this.courseInfo.cover = res.data;
+      this.courseInfo.cover = res.data.url;
     },
 
     //图片上传前调用
