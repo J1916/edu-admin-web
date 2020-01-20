@@ -1,4 +1,6 @@
-<!-- 课程信息表单 -->
+<template>
+  <div class="app-container">
+    <!-- 课程信息表单 -->
 <el-form label-width="120px">
 
   <el-form-item label="课程标题">
@@ -67,6 +69,8 @@
     <el-input-number :min="0" v-model="courseInfo.price" controls-position="right" placeholder="免费课程请设置为0元"/> 元
   </el-form-item>
 </el-form>
+  </div>
+</template>
 <script>
 import course from "@/api/edu/course";
 import subject from "@/api/edu/subject";
@@ -105,7 +109,9 @@ export default {
       //从路由中获取传递过来的id
       if (this.$route.param && this.$route.param.id) {
         const id = this.$route.param.id;
-        console.log(id);
+        //根据id查询课程
+        this.getCourseInfoById(id);
+
       } else {
         this.courseInfo = { ...defaultForm }; //深拷贝
       }
@@ -188,6 +194,12 @@ export default {
         this.$message.error("上传头像图片大小不能超过 2MB!");
       }
       return isJPG && isLt2M;
+    },
+    //根据id查询课程
+    getCourseInfoById(id){
+        course.getCourseInfoById(id).then(res=>{
+            this.courseInfo=res.data;
+        });
     }
   }
 };
