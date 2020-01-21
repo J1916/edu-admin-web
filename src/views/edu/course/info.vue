@@ -1,74 +1,86 @@
 <template>
   <div class="app-container">
     <!-- 课程信息表单 -->
-<el-form label-width="120px">
+    <el-form label-width="120px">
+      <el-form-item label="课程标题">
+        <el-input v-model="courseInfo.title" placeholder=" 示例：机器学习项目课：从基础到搭建项目视频课程。专业名称注意大小写" />
+      </el-form-item>
 
-  <el-form-item label="课程标题">
-    <el-input v-model="courseInfo.title" placeholder=" 示例：机器学习项目课：从基础到搭建项目视频课程。专业名称注意大小写"/>
-  </el-form-item>
+      <!-- 所属分类：级联下拉列表 -->
+      <el-form-item label="课程类别">
+        <!-- 一级分类 -->
+        <el-select
+          v-model="courseInfo.subjectParentId"
+          placeholder="请选择"
+          @change="subjectLevelOneChanged"
+        >
+          <el-option
+            v-for="subject in subjectNestedList"
+            :key="subject.id"
+            :label="subject.title"
+            :value="subject.id"
+          />
+        </el-select>
+      </el-form-item>
+      <!-- 二级分类 -->
+      <el-select v-model="courseInfo.subjectId" placeholder="请选择">
+        <el-option
+          v-for="subject in subSubjectList"
+          :key="subject.id"
+          :label="subject.title"
+          :value="subject.id"
+        />
+      </el-select>
 
-  <!-- 所属分类：级联下拉列表 -->
-<el-form-item label="课程类别">
-  <!-- 一级分类 -->
-  <el-select
-    v-model="courseInfo.subjectParentId"
-    placeholder="请选择" 
-    @change="subjectLevelOneChanged" >
-    <el-option
-      v-for="subject in subjectNestedList"
-      :key="subject.id"
-      :label="subject.title"
-      :value="subject.id"/>
-  </el-select>
-</el-form-item>
-<!-- 二级分类 -->
-<el-select v-model="courseInfo.subjectId" placeholder="请选择">
-  <el-option
-    v-for="subject in subSubjectList"
-    :key="subject.id"
-    :label="subject.title"
-    :value="subject.id"/>
-</el-select>
+      <!-- 课程讲师 -->
+      <el-form-item label="课程讲师">
+        <el-select v-model="courseInfo.teacherId" placeholder="请选择">
+          <el-option
+            v-for="teacher in teacherList"
+            :key="teacher.id"
+            :label="teacher.name"
+            :value="teacher.id"
+          />
+        </el-select>
+      </el-form-item>
 
-  <!-- 课程讲师 -->
-<el-form-item label="课程讲师">
-  <el-select
-    v-model="courseInfo.teacherId"
-    placeholder="请选择">
-    <el-option
-      v-for="teacher in teacherList"
-      :key="teacher.id"
-      :label="teacher.name"
-      :value="teacher.id"/>
-  </el-select>
-</el-form-item>
+      <el-form-item label="总课时">
+        <el-input-number
+          :min="0"
+          v-model="courseInfo.lessonNum"
+          controls-position="right"
+          placeholder="请填写课程的总课时数"
+        />
+      </el-form-item>
 
-  <el-form-item label="总课时">
-    <el-input-number :min="0" v-model="courseInfo.lessonNum" controls-position="right" placeholder="请填写课程的总课时数"/>
-  </el-form-item>
+      <!-- 课程简介 TODO -->
+      <!--Tinymce中的图片上传功能直接存储的是图片的base64编码，因此无需图片服务器 -->
+      <el-form-item label="课程简介">
+        <tinymce :height="300" v-model="courseInfo.description" />
+      </el-form-item>
 
-  <!-- 课程简介 TODO -->
-<!--Tinymce中的图片上传功能直接存储的是图片的base64编码，因此无需图片服务器 -->
-<el-form-item label="课程简介">
-    <tinymce :height="300" v-model="courseInfo.description"/>
-</el-form-item>
+      <!-- 课程封面 TODO -->
+      <el-form-item label="课程封面">
+        <el-upload
+          :show-file-list="false"
+          :on-success="handleAvatarSuccess"
+          :before-upload="beforeAvatarUpload"
+          :action="BASE_API+'/admin/oss/file/upload?host=cover'"
+          class="avatar-uploader"
+        >
+          <img :src="courseInfo.cover" />
+        </el-upload>
+      </el-form-item>
 
-  <!-- 课程封面 TODO -->
-<el-form-item label="课程封面">
-  <el-upload
-    :show-file-list="false"
-    :on-success="handleAvatarSuccess"
-    :before-upload="beforeAvatarUpload"
-    :action="BASE_API+'/admin/oss/file/upload?host=cover'"
-    class="avatar-uploader">
-    <img :src="courseInfo.cover">
-  </el-upload>
-</el-form-item>
-
-  <el-form-item label="课程价格">
-    <el-input-number :min="0" v-model="courseInfo.price" controls-position="right" placeholder="免费课程请设置为0元"/> 元
-  </el-form-item>
-</el-form>
+      <el-form-item label="课程价格">
+        <el-input-number
+          :min="0"
+          v-model="courseInfo.price"
+          controls-position="right"
+          placeholder="免费课程请设置为0元"
+        />元
+      </el-form-item>
+    </el-form>
   </div>
 </template>
 <script>
@@ -84,9 +96,8 @@ const defaultForm = {
   teacherId: "",
   lessonNum: 0,
   description: "",
-  cover: "",
   price: 0,
-  cover: process.env.OSS_PATH + "/cover/default.gif"
+  cover: process.env.OSS_PATH + "/admin/oss/file/upload"
 };
 export default {
   components: { Tinymce }, //引用Tinymce可视化编辑器组件
@@ -102,6 +113,7 @@ export default {
     };
   },
   created() {
+    console.log(this.courseInfo.cover);
     this.init();
   },
   methods: {
@@ -152,7 +164,6 @@ export default {
     update() {
       //更新课程
       this.updateCourseInfoById();
-   
     },
     initSubjectList() {
       //初始化分类列表
@@ -202,7 +213,7 @@ export default {
       course.getCourseInfoById(id).then(res => {
         this.courseInfo = res.data;
 
-      // 初始化分类列表
+        // 初始化分类列表
         subject.getNestedTreeList().then(res => {
           this.subjectNestedList = res.data;
           // 填充二级菜单：遍历一级菜单列表，
@@ -219,17 +230,21 @@ export default {
       });
     },
 
-  //更新课程
-  updateCourseInfoById(){
-    this.btnDisabled = true ;//禁用按钮
-      course.updateCourseInfoById(this.courseInfo).then(res=>{
-          this.$message.success('更新成功');
-      }).then(()=>{
-        //使用路由跳转到其他页面
-             this.$router.push({ path: "/edu/course/chapter/"+this.courseInfo.id });
-      })
-
-  }
+    //更新课程
+    updateCourseInfoById() {
+      this.btnDisabled = true; //禁用按钮
+      course
+        .updateCourseInfoById(this.courseInfo)
+        .then(res => {
+          this.$message.success("更新成功");
+        })
+        .then(() => {
+          //使用路由跳转到其他页面
+          this.$router.push({
+            path: "/edu/course/chapter/" + this.courseInfo.id
+          });
+        });
+    }
   }
 };
 </script> 
