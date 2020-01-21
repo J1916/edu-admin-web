@@ -14,27 +14,44 @@
       <el-button @click="previous">上一步</el-button>
       <el-button :disabled="saveBtnDisabled" type="primary" @click="next">下一步</el-button>
     </div>
+    <!-- 章节列表 -->
+<ChapterList :course-id="courseId" />
   </div>
 </template>
 <script>
+import chapter from "@/api/edu/chapter";
+// 引入组件
+import ChapterList from '@/views/edu/course/components/ChapterList'
+
 export default {
+    components: {ChapterList}, //注册组件
     data() {
         return{
          active:1,
-         saveBtnDisabled:false,   
+         saveBtnDisabled:false,
+         courseId: '' // 所属课程 
         }
     },
-    created() {},
+    created() {
+        this.init();
+    },
     methods: {
         //上一步
         previous(){
             console.log('上一步');
-            this.$router.push({path:'/edu/course/info/1'}); //设置路由跳转到其他页面
+            this.$router.push({path:'/edu/course/info/'+this.courseId}); //设置路由跳转到其他页面
         },
         //下一步
         next(){
             console.log('下一步');
-            this.$router.push({path:'/edu/course/publish/1'}); //设置路由跳转到其他页面
+            this.$router.push({path:'/edu/course/publish/'+this.courseId}); //设置路由跳转到其他页面
+        },
+        init(){
+            //判断路由有没有携带参数id
+            if (this.$route.params && this.$route.params.id){
+                //从路由中获取参数id
+                this.courseId = this.$route.params.id;
+            }
         }
     }
 }
