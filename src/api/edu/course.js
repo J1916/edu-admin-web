@@ -10,14 +10,14 @@ export default {
     });
   },
   //根据id查询课程
-  getCourseInfoById(id){
+  getCourseInfoById(id) {
     return request({
       method: "GET",
       url: `${api_name}/${id}`
     });
   },
   //更新课程
-  updateCourseInfoById(courseInfo){
+  updateCourseInfoById(courseInfo) {
     return request({
       method: "PUT",
       url: `${api_name}/updateCourseInfo/${courseInfo.id}`,
@@ -31,4 +31,10 @@ export default {
       params: searchObj
     });
   },
+  deleteCourseInfoById(id) {
+    return request({
+      method: "DELETE",
+      url: `${api_name}/${id}`
+    });
+  }
 };
