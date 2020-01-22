@@ -10,15 +10,19 @@
     <ChapterForm ref="chapterForm" :course-id="courseId" @onSaveSuccess="refreshList" />
     <!-- onSaveSuccess监听函数： 指定保存成功后回调的方法-->
 
+    <!-- 引用添加课时表单组件 -->
+    <VideoForm ref="videoForm" :course-id="courseId" @onSaveSuccess="refreshList" />
+    <!-- onSaveSuccess监听函数： 指定保存成功后回调的方法-->
+
     <!-- 章节列表 -->
     <ul class="chapterList">
       <li v-for="chapter in chapterNestedList" :key="chapter.id">
         <p>
           {{ chapter.title }}
           <span class="acts">
-            <el-button type="text">添加课时</el-button>
-            <el-button type="text">编辑</el-button>
-            <el-button type="text">删除</el-button>
+            <el-button type="text" @click="addVideo(chapter.id)">添加课时</el-button>
+            <el-button type="text" @click="updateChapterById(chapter.id)">编辑</el-button>
+            <el-button type="text" @click="deleteChapterById(row.id)">删除</el-button>
           </span>
         </p>
         <!-- 视频 -->
@@ -28,8 +32,8 @@
               {{ video.title }}
               <span class="acts">
                 <el-tag v-if="video.free" size="mini" type="success">{{ '免费观看' }}</el-tag>
-                <el-button type="text" @click="updateChapterById(row.id)">编辑</el-button>
-                <el-button type="text" @click="deleteChapterById(row.id)">删除</el-button>
+                <el-button type="text" @click="editVideo(chapter.id, video.id)">编辑</el-button>
+                <el-button type="text" @click="removeVideo(video.id)">删除</el-button>
               </span>
             </p>
           </li>
@@ -41,9 +45,10 @@
 
 <script>
 import chapter from "@/api/edu/chapter";
+import video from "@/api/edu/video";
 // 引入章节表单组件
 import ChapterForm from "@/views/edu/course/components/ChapterForm";
-
+import VideoForm from "@/views/edu/course/components/VideoForm";
 export default {
   // 父组件向子组件传值
   props: {
@@ -52,7 +57,7 @@ export default {
       default: null
     }
   },
-  components: { ChapterForm }, //注册添加章节组件
+  components: { ChapterForm, VideoForm }, //注册添加章节组件
   data() {
     return {
       chapterNestedList: [] // 章节嵌套视频列表
@@ -94,6 +99,33 @@ export default {
     //监听方法
     refreshList() {
       this.getChapterNodeList();
+    },
+    //添加课时
+    addVideo(chapterId) {
+      this.$refs.VideoForm.open(chapterId);
+    },
+    //更新课时
+    editVideo(chapterId, videoId) {
+      this.$refs.VideoForm.open(chapterId, videoId);
+    },
+    removeVideo(videoId) {
+      this.$confirm("此操作将永久删除该记录, 是否继续?", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning"
+      })
+        .then(() => {
+          return video.deleteVideoInfoById(videoId);
+        })
+        .then(() => {
+          this.getChapterNodeList(); //刷新列表
+          this.$message.success("删除成功");
+        })
+        .catch(res => {
+          if (res === "cancel") {
+            this.$message.info("已取消删除");
+          }
+        });
     }
   }
 };
